@@ -1,2 +1,2 @@
-This is a objectoriented implementation of Datastructures and Algorithms in Mojo.  
+This is an objectoriented implementation of datastructures in Mojo.  
 🔥( [https://www.modular.com/max/mojo](https://www.modular.com/max/mojo) )🔥

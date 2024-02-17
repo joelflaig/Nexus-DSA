@@ -1,4 +1,4 @@
-from tensorwrapper import TensorWrapper, float
+from datastruct.tensorwrapper import TensorWrapper, float
 from tensor import TensorShape
 from random import seed, random_float64
 
@@ -94,11 +94,19 @@ struct Vector(TensorWrapper, Sized):
     return (self.data * vec.data)[0]
 
   @always_inline
+  fn __rmul__(inout self, vec: Vector) raises -> Float64:
+    return self.__mul__(vec)
+
+  @always_inline
   fn __sub__(inout self, vec: Vector) raises -> Vector:
     if not self.dim_match(vec):
       raise Error("Unable to subtract vector due to dimension mismatch")
     
     return Vector(self.data - vec.data)
+
+  @always_inline
+  fn __rsub__(inout self, vec: Vector):
+    pass
 
   @always_inline
   fn __add__(inout self, vec: Vector) raises -> Vector:

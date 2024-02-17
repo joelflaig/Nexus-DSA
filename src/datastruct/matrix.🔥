@@ -1,6 +1,6 @@
-from tensorwrapper import float
-from mdtensorwrapper import MDTensorWrapper
-from vector import Vector
+from datastruct.tensorwrapper import float
+from datastruct.mdtensorwrapper import MDTensorWrapper
+from datastruct.vector import Vector
 from random import seed, random_float64
 from tensor import TensorShape
 

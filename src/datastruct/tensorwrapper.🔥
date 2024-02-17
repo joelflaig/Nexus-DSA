@@ -1,11 +1,11 @@
-# trait for wrappers around a "data" variable of "Tensor" type
+# defines trait for wrappers around a "data" variable of "Tensor" type
 
 alias float = DType.float64
 
 trait TensorWrapper:
   '''
-  Tensorwrapper summarizes all types in this document, 
-  that "wrap" around a "data" Tensor.
+  Tensorwrapper summarizes all types, 
+  that 'wrap' around a "data" Tensor.
   '''
 
   fn __init__(inout self) raises:
