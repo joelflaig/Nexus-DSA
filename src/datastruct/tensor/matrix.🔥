@@ -1,0 +1,105 @@
+from tensorwrapper import float
+from mdtensorwrapper import MDTensorWrapper
+from vector import Vector
+from random import seed, random_float64
+from tensor import TensorShape
+
+struct Matrix(MDTensorWrapper):
+  '''Defines a wrapper to handle mathematical matrices.'''
+
+  var data: Tensor[float]
+  var x: Int
+  var y: Int
+
+  fn __init__(inout self) raises:
+    self.data = Tensor[float]()
+    self.x = 0
+    self.y = 0
+
+  fn __init__(inout self, owned x: Int, owned y: Int):
+    self.x = x
+    self.y = y
+    self.data = Tensor[float](x, y)
+
+  fn __init__(inout self, owned data: Tensor[float]) raises:
+    if data.rank() != 2:
+      raise Error("Unable to convert given data to a matrix due to rank mismatch")
+    self.data = data
+    self.x = data.dim(0)
+    self.y = data.dim(1)
+
+  fn __copyinit__(inout self, borrowed other: Self):
+    self.data = other.data
+    self.x = other.x
+    self.y = other.y
+
+  fn __moveinit__(inout self, owned other: Self):
+    self.data = other.data
+    self.x = other.x
+    self.y = other.y
+
+  @always_inline
+  fn __mul__(inout self, owned vec: Vector) raises-> Vector:
+    '''Defines function for matrix-vector multiplication.'''
+    if vec.data.dim(0) != self.data.dim(1):
+      raise Error("Cannot multiply due to dimension mismatch")
+
+    var val = Vector(self.data.dim(0))
+
+    for i in range(self.data.dim(0)):
+      # multiplies input vector with rows of matrix
+      val.data[i] = vec * 
+        Vector(
+          # returns the i-th row of the matrix as Tensor value
+          self.data.clip(
+            self.data.dim(1)*i, 
+            self.data.dim(1)*(i+1)-1
+          )
+        )
+    
+    return val
+
+  @always_inline
+  fn __rmul__(inout self, vec: Vector) raises-> Vector:
+    '''Defines function for matrix-vector multiplication.'''
+    return self.__mul__(vec)
+
+  fn flatten(inout self) raises -> Vector:
+    return Vector(self.data.reshape(TensorShape(self.x * self.y)))
+
+  fn random_matrix(inout self, x: Int, y: Int) raises:
+    '''Defines function for generating random matrices with Float64 values.'''
+ 
+    self.data = Tensor[float](x, y)
+    
+    seed()
+    
+    for i in range(x):
+      for j in range(y):
+        self.data.simd_store[1](
+          VariadicList(i, j), 
+          random_float64()
+          )
+
+  @staticmethod
+  fn matrix_applicable(func: fn(Float64) -> Float64) -> fn(Matrix) raises escaping -> Matrix:
+    '''Takes a function with a parameter and returns it equivalent for the Matrix type.'''
+    @always_inline
+    fn matfunc(matrix: Matrix) raises escaping -> Matrix:
+      var val = Matrix(matrix.x, matrix.y)
+      for i in range(matrix.x):
+        for j in range(matrix.y):
+          
+          val.data.simd_store[1](
+            VariadicList(i, j), 
+            func(
+              matrix.data.simd_load[1](i, j)
+              )
+            )
+
+      return val
+    
+    return matfunc
+
+# defines an alias for pointers to the matrix type
+alias MatrixP = Pointer[Matrix]

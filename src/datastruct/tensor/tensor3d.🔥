@@ -1,0 +1,53 @@
+from mdtensorwrapper import MDTensorWrapper
+from tensorwrapper import float
+from vector import Vector
+from tensor import TensorShape
+
+struct Tensor3D(MDTensorWrapper):
+  '''Defines a wrapper to handle mathematical 3-dimensional tensors.'''
+  
+  var x: Int
+  var y: Int
+  var z: Int
+  var data: Tensor[float]
+
+  fn __init__(inout self) raises:
+    self.data = Tensor[float]()
+    self.x = 0
+    self.y = 0
+    self.z = 0
+
+  fn __init__(inout self, owned x: Int, owned y: Int, owned z: Int):
+    self.x = x
+    self.y = y
+    self.z = z
+    self.data = Tensor[float](x,y,z)
+
+  fn __init__(inout self, owned data: Tensor[float]) raises:
+    
+    if data.rank() != 3:
+      raise Error("Unable to convert given data to a matrix due to rank mismatch")
+    self.data = data
+    self.x = data.dim(0)
+    self.y = data.dim(1)
+    self.z = data.dim(2)
+
+  fn __copyinit__(inout self, borrowed other: Self):
+    self.data = other.data
+    self.x = other.x
+    self.y = other.y
+    self.z = other.z
+
+  fn __moveinit__(inout self, owned other: Self):
+    self.data = other.data
+    self.x = other.x
+    self.y = other.y
+    self.z = other.z
+
+  fn flatten(inout self) raises -> Vector:
+    return Vector(self.data.reshape(TensorShape(self.x * self.y * self.z)))
+
+  fn random_tensor3d(inout self, owned x: Int, owned y: Int, owned z: Int):
+    pass
+
+alias Tensor3DP = Pointer[Tensor3D]

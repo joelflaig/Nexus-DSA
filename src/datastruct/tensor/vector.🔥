@@ -1,0 +1,165 @@
+from tensorwrapper import TensorWrapper, float
+from tensor import TensorShape
+from random import seed, random_float64
+
+struct Vector(TensorWrapper, Sized):
+  '''Defines a wrapper to handle mathematical vectors.'''
+  
+  var data: Tensor[float]
+  var size: Int
+  var _offset: Int
+
+  fn __init__(inout self) raises:
+    self.size = 0
+    self._offset = 0
+    self.data = Tensor[float]()
+
+  fn __init__(inout self, owned size: Int) raises:
+    self.size = size
+    self._offset = 0
+    self.data = Tensor[float](size)
+
+  fn __init__(inout self, owned data: Tensor[float]) raises:
+    if data.rank() != 1:
+      raise Error("Unable to convert given data to a vector due to rank mismatch")
+    self.data = data
+    self._offset = 0
+    self.size = data.dim(0)
+
+  fn __del__(owned self):
+    self.data.__del__()
+    self.size.__del__()
+    self._offset.__del__()
+
+  fn __copyinit__(inout self, borrowed other: Self):
+    self.data.__copyinit__(other.data)
+    self._offset = other._offset
+    self.size = other.size
+
+  fn __moveinit__(inout self, owned other: Self):
+    self.data.__moveinit__(other.data)
+    self._offset = other._offset
+    self.size = other.size
+
+  fn __getitem__(self, index: Int) -> Float64:
+    return self.data[index]
+
+  fn __len__(self) -> Int:
+    return self.size
+
+  fn __iter__(self) raises -> Vector:
+    return self.data
+
+  fn __next__(inout self) raises -> Float64:
+    if self._offset >= self.size:
+      raise Error("Index out of range of vector")
+    self._offset += 1
+    return self.data[self._offset]
+
+  @always_inline
+  fn __ipow__(inout self, exponent: Int) raises:
+    self.data.__ipow__(exponent)
+
+  @always_inline
+  fn __pow__(inout self, exponent: Int) raises -> Vector:
+    return Vector(self.data ** exponent)
+
+  @always_inline
+  fn __truediv__(inout self, scalar: Float64) raises -> Vector:
+    return Vector(self.data / scalar)
+
+  @always_inline
+  fn __rtruediv__(inout self, scalar: Float64) raises -> Vector:
+    return Vector(self.data / scalar)
+
+  @always_inline
+  fn __truediv__(inout self, vec: Vector) raises -> Vector:
+    if not self.dim_match(vec):
+      raise Error("Unable to divide by vector due to dimension mismatch")
+
+    return Vector(self.data / vec.data)
+
+  @always_inline
+  fn __rtruediv__(inout self, vec: Vector) raises -> Vector:
+    if not self.dim_match(vec):
+      raise Error("Unable to divide by vector due to dimension mismatch")
+    
+    return Vector(self.data / vec.data)
+
+  @always_inline
+  fn __mul__(inout self, vec: Vector) raises -> Float64:
+    if not self.dim_match(vec):
+      raise Error("Unable to multiply vectors due to dimension mismatch")
+
+    return (self.data * vec.data)[0]
+
+  @always_inline
+  fn __sub__(inout self, vec: Vector) raises -> Vector:
+    if not self.dim_match(vec):
+      raise Error("Unable to subtract vector due to dimension mismatch")
+    
+    return Vector(self.data - vec.data)
+
+  @always_inline
+  fn __add__(inout self, vec: Vector) raises -> Vector:
+    if not self.dim_match(vec):
+      raise Error("Unable to add vectors due to dimension mismatch")
+    
+    return Vector(self.data + vec.data)
+
+  @always_inline
+  fn __eq__(self, vec: Vector) -> Bool:
+    if self.data != vec.data: return False
+    return True
+
+  @always_inline
+  fn __ne__(inout self, vec: Vector) -> Bool:
+    return not self.__eq__(vec)
+
+  @always_inline
+  fn dim_match(inout self, vec: Vector) -> Bool:
+    '''Checks wether the length of the vector matches the length of "self".'''
+    if vec.data.dim(0) != self.data.dim(0): return False
+    return True
+
+  fn append(inout self, data: Float64) raises:
+    self.data = self.data.reshape(
+      TensorShape(
+        self.data.shape().num_elements()+1
+        )
+      )
+    self.data.simd_store(-1, data)
+
+  fn random_vector(inout self, len: Int) raises:
+    '''Defines function for generating random vectors with Float64 values.'''
+    self.data = Tensor[float](len)
+    seed()
+    for i in range(len):
+      self.data.simd_store[1](i, random_float64())
+
+  @staticmethod
+  fn vector_applicable(func: fn(Float64) -> Float64) -> fn(Vector) raises escaping -> Vector:
+    '''Takes a function and returns its equivalent for the Vector type.'''
+    @always_inline
+    fn vecfunc(vec: Vector) raises escaping -> Vector:
+      var val = Vector()
+      for i in vec:
+        val.append(func(i))
+      return val
+    
+    return vecfunc
+
+  @staticmethod
+  fn vector_applicable(func: fn(a:Float64, x:Float64) -> Float64) -> fn(a:Float64, vec:Vector) raises escaping -> Vector:
+    '''Takes a function with a parameter and returns it equivalent for the Vector type.'''
+    @always_inline
+    fn vecfunc(a:Float64, vec: Vector) raises -> Vector:
+      var val = Vector()
+      for i in vec:
+        val.append(func(a, i))
+      return val
+    
+    return vecfunc
+
+# defines an alias for pointers to the Vector type
+alias VectorP = Pointer[Vector]
