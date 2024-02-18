@@ -1,5 +1,5 @@
-from datastruct.tensorwrapper import TensorWrapper
-from datastruct.vector import Vector
+from .tensorwrapper import TensorWrapper
+from .vector import Vector
 
 trait MDTensorWrapper(TensorWrapper):
   

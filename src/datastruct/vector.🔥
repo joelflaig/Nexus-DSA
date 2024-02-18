@@ -1,4 +1,4 @@
-from datastruct.tensorwrapper import TensorWrapper, float
+from .tensorwrapper import TensorWrapper
 from tensor import TensorShape
 from random import seed, random_float64
 
@@ -19,7 +19,7 @@ struct Vector(TensorWrapper, Sized):
     self._offset = 0
     self.data = Tensor[float](size)
 
-  fn __init__(inout self, owned data: Tensor[float]) raises:
+  fn __init__(inout self, data: Tensor[float]) raises:
     if data.rank() != 1:
       raise Error("Unable to convert given data to a vector due to rank mismatch")
     self.data = data

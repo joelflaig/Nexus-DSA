@@ -1,6 +1,5 @@
-from datastruct.mdtensorwrapper import MDTensorWrapper
-from datastruct.tensorwrapper import float
-from datastruct.vector import Vector
+from .mdtensorwrapper import MDTensorWrapper
+from .vector import Vector
 from tensor import TensorShape
 
 struct Tensor3D(MDTensorWrapper):

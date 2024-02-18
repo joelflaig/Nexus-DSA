@@ -1,1 +1,10 @@
 """Module providing Datastructures and Algorithms"""
+
+alias float = DType.float64
+
+from .array import Array
+from .matrix import Matrix, MatrixP
+from .mdtensorwrapper import MDTensorWrapper
+from .tensor3d import Tensor3D, Tensor3DP
+from .tensorwrapper import TensorWrapper
+from .vector import Vector, VectorP

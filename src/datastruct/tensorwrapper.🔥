@@ -1,7 +1,5 @@
 # defines trait for wrappers around a "data" variable of "Tensor" type
 
-alias float = DType.float64
-
 trait TensorWrapper:
   '''
   Tensorwrapper summarizes all types, 

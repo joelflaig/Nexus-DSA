@@ -1,6 +1,5 @@
-from datastruct.tensorwrapper import float
-from datastruct.mdtensorwrapper import MDTensorWrapper
-from datastruct.vector import Vector
+from .mdtensorwrapper import MDTensorWrapper
+from .vector import Vector
 from random import seed, random_float64
 from tensor import TensorShape
 
@@ -65,7 +64,13 @@ struct Matrix(MDTensorWrapper):
     return self.__mul__(vec)
 
   fn flatten(inout self) raises -> Vector:
-    return Vector(self.data.reshape(TensorShape(self.x * self.y)))
+    return Vector(
+      self.data.reshape(
+        TensorShape(
+          self.x * self.y
+          )
+        )
+      )
 
   fn random_matrix(inout self, x: Int, y: Int) raises:
     '''Defines function for generating random matrices with Float64 values.'''
