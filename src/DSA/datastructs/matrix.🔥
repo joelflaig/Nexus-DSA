@@ -73,7 +73,7 @@ struct Matrix(MDTensorWrapper):
       )
 
   fn random_matrix(inout self, x: Int, y: Int) raises:
-    '''Defines function for generating random matrices with Float64 values.'''
+    '''Defines function for generating random matrices with `Float64` values.'''
  
     self.data = Tensor[float](x, y)
     
@@ -88,7 +88,7 @@ struct Matrix(MDTensorWrapper):
 
   @staticmethod
   fn matrix_applicable(func: fn(Float64) -> Float64) -> fn(Matrix) raises escaping -> Matrix:
-    '''Takes a function with a parameter and returns it equivalent for the Matrix type.'''
+    '''Takes a function with a parameter and returns it equivalent for the `Matrix` type.'''
     @always_inline
     fn matfunc(matrix: Matrix) raises escaping -> Matrix:
       var val = Matrix(matrix.x, matrix.y)
@@ -106,5 +106,5 @@ struct Matrix(MDTensorWrapper):
     
     return matfunc
 
-# defines an alias for pointers to the matrix type
 alias MatrixP = Pointer[Matrix]
+'''A `Pointer` to an `Matrix` instance'''

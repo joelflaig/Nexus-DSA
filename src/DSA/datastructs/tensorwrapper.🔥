@@ -2,8 +2,8 @@
 
 trait TensorWrapper:
   '''
-  Tensorwrapper summarizes all types, 
-  that 'wrap' around a "data" Tensor.
+  `Tensorwrapper` summarizes all types, 
+  that 'wrap' around a `data` `Tensor`.
   '''
 
   fn __init__(inout self) raises:

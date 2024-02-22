@@ -1,0 +1,10 @@
+"""Module providing Datastructures"""
+
+alias float = DType.float64
+'''
+An alias for my convenience 
+
+(this type is used in the structs conforming to the `TensorWrapper` trait, 
+
+but this is going to change in the near future with `DType` TensorWrappers ).
+'''

@@ -1,4 +1,4 @@
-from datastruct import Vector
+from DSA.datastructs.vector import Vector
 
 fn main() raises:
   var v = Vector()

@@ -126,7 +126,7 @@ struct Vector(TensorWrapper, Sized):
 
   @always_inline
   fn dim_match(inout self, vec: Vector) -> Bool:
-    '''Checks wether the length of the vector matches the length of "self".'''
+    '''Checks wether the length of the vector matches the length of `self`.'''
     if vec.data.dim(0) != self.data.dim(0): return False
     return True
 
@@ -138,8 +138,14 @@ struct Vector(TensorWrapper, Sized):
       )
     self.data.simd_store(-1, data)
 
+  fn sum(inout self) -> Float64:
+    var val: Float64 = 0
+    for i in range(self.data.dim(0)):
+      val += self.data[i]
+    return val
+
   fn random_vector(inout self, len: Int) raises:
-    '''Defines function for generating random vectors with Float64 values.'''
+    '''Defines function for generating random vectors with `Float64` values.'''
     self.data = Tensor[float](len)
     seed()
     for i in range(len):
@@ -147,7 +153,7 @@ struct Vector(TensorWrapper, Sized):
 
   @staticmethod
   fn vector_applicable(func: fn(Float64) -> Float64) -> fn(Vector) raises escaping -> Vector:
-    '''Takes a function and returns its equivalent for the Vector type.'''
+    '''Takes a function and returns its equivalent for the `Vector` type.'''
     @always_inline
     fn vecfunc(vec: Vector) raises escaping -> Vector:
       var val = Vector()
@@ -159,7 +165,7 @@ struct Vector(TensorWrapper, Sized):
 
   @staticmethod
   fn vector_applicable(func: fn(a:Float64, x:Float64) -> Float64) -> fn(a:Float64, vec:Vector) raises escaping -> Vector:
-    '''Takes a function with a parameter and returns it equivalent for the Vector type.'''
+    '''Takes a function with a parameter and returns it equivalent for the `Vector` type.'''
     @always_inline
     fn vecfunc(a:Float64, vec: Vector) raises -> Vector:
       var val = Vector()
@@ -169,5 +175,5 @@ struct Vector(TensorWrapper, Sized):
     
     return vecfunc
 
-# defines an alias for pointers to the Vector type
 alias VectorP = Pointer[Vector]
+'''A `Pointer` to an `Vector` instance'''

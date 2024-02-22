@@ -50,3 +50,4 @@ struct Tensor3D(MDTensorWrapper):
     pass
 
 alias Tensor3DP = Pointer[Tensor3D]
+'''A `Pointer` to an `Tensor3D` instance'''

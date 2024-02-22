@@ -1,8 +1,8 @@
-# defines "array" struct
+# defines `Array` struct
 
 struct Array[type: DType](Sized, Copyable, Movable):
   '''
-  A struct implementing an array datastructure capable of holding DType values.
+  A struct implementing an array datastructure capable of holding `DType` values.
   '''
 
   var data: DTypePointer[type]
