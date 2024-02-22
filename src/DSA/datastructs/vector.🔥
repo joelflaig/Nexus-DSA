@@ -1,3 +1,4 @@
+'''Contains `Vector` and `VectorP`.'''
 from .tensorwrapper import TensorWrapper
 from tensor import TensorShape
 from random import seed, random_float64
@@ -61,55 +62,55 @@ struct Vector(TensorWrapper, Sized):
     self.data.__ipow__(exponent)
 
   @always_inline
-  fn __pow__(inout self, exponent: Int) raises -> Vector:
+  fn __pow__(self, exponent: Int) raises -> Vector:
     return Vector(self.data ** exponent)
 
   @always_inline
-  fn __truediv__(inout self, scalar: Float64) raises -> Vector:
+  fn __truediv__(self, scalar: Float64) raises -> Vector:
     return Vector(self.data / scalar)
 
   @always_inline
-  fn __rtruediv__(inout self, scalar: Float64) raises -> Vector:
+  fn __rtruediv__(self, scalar: Float64) raises -> Vector:
     return Vector(self.data / scalar)
 
   @always_inline
-  fn __truediv__(inout self, vec: Vector) raises -> Vector:
+  fn __truediv__(self, vec: Vector) raises -> Vector:
     if not self.dim_match(vec):
       raise Error("Unable to divide by vector due to dimension mismatch")
 
     return Vector(self.data / vec.data)
 
   @always_inline
-  fn __rtruediv__(inout self, vec: Vector) raises -> Vector:
+  fn __rtruediv__(self, vec: Vector) raises -> Vector:
     if not self.dim_match(vec):
       raise Error("Unable to divide by vector due to dimension mismatch")
     
     return Vector(self.data / vec.data)
 
   @always_inline
-  fn __mul__(inout self, vec: Vector) raises -> Float64:
+  fn __mul__(self, vec: Vector) raises -> Float64:
     if not self.dim_match(vec):
       raise Error("Unable to multiply vectors due to dimension mismatch")
 
     return (self.data * vec.data)[0]
 
   @always_inline
-  fn __rmul__(inout self, vec: Vector) raises -> Float64:
+  fn __rmul__(self, vec: Vector) raises -> Float64:
     return self.__mul__(vec)
 
   @always_inline
-  fn __sub__(inout self, vec: Vector) raises -> Vector:
+  fn __sub__(self, vec: Vector) raises -> Vector:
     if not self.dim_match(vec):
       raise Error("Unable to subtract vector due to dimension mismatch")
     
     return Vector(self.data - vec.data)
 
   @always_inline
-  fn __rsub__(inout self, vec: Vector):
+  fn __rsub__(self, vec: Vector):
     pass
 
   @always_inline
-  fn __add__(inout self, vec: Vector) raises -> Vector:
+  fn __add__(self, vec: Vector) raises -> Vector:
     if not self.dim_match(vec):
       raise Error("Unable to add vectors due to dimension mismatch")
     
@@ -121,11 +122,11 @@ struct Vector(TensorWrapper, Sized):
     return True
 
   @always_inline
-  fn __ne__(inout self, vec: Vector) -> Bool:
+  fn __ne__(self, vec: Vector) -> Bool:
     return not self.__eq__(vec)
 
   @always_inline
-  fn dim_match(inout self, vec: Vector) -> Bool:
+  fn dim_match(self, vec: Vector) -> Bool:
     '''Checks wether the length of the vector matches the length of `self`.'''
     if vec.data.dim(0) != self.data.dim(0): return False
     return True
@@ -138,7 +139,7 @@ struct Vector(TensorWrapper, Sized):
       )
     self.data.simd_store(-1, data)
 
-  fn sum(inout self) -> Float64:
+  fn sum(self) -> Float64:
     var val: Float64 = 0
     for i in range(self.data.dim(0)):
       val += self.data[i]

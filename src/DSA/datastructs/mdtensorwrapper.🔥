@@ -1,3 +1,4 @@
+'''Contains `MDTensorwrapper`.'''
 from .tensorwrapper import TensorWrapper
 from .vector import Vector
 

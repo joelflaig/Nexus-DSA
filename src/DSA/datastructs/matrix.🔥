@@ -1,3 +1,4 @@
+'''Contains `Matrix` and `MatrixP`.'''
 from .mdtensorwrapper import MDTensorWrapper
 from .vector import Vector
 from random import seed, random_float64
@@ -38,7 +39,7 @@ struct Matrix(MDTensorWrapper):
     self.y = other.y
 
   @always_inline
-  fn __mul__(inout self, owned vec: Vector) raises-> Vector:
+  fn __mul__(self, owned vec: Vector) raises-> Vector:
     '''Defines function for matrix-vector multiplication.'''
     if vec.data.dim(0) != self.data.dim(1):
       raise Error("Cannot multiply due to dimension mismatch")
@@ -59,11 +60,12 @@ struct Matrix(MDTensorWrapper):
     return val
 
   @always_inline
-  fn __rmul__(inout self, vec: Vector) raises-> Vector:
+  fn __rmul__(self, vec: Vector) raises-> Vector:
     '''Defines function for matrix-vector multiplication.'''
     return self.__mul__(vec)
 
   fn flatten(inout self) raises -> Vector:
+    '''Returns all values of the underlying `Tensor` value in a `Vector`.'''
     return Vector(
       self.data.reshape(
         TensorShape(

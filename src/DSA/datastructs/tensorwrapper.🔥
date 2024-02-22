@@ -1,4 +1,4 @@
-# defines trait for wrappers around a "data" variable of "Tensor" type
+'''Contains `TensorWrapper` a trait for wrappers around a `data` variable of `Tensor` type.'''
 
 trait TensorWrapper:
   '''

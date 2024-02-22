@@ -1,3 +1,4 @@
+'''Contains `Tensor3D` and `Tensor3DP`.'''
 from .mdtensorwrapper import MDTensorWrapper
 from .vector import Vector
 from tensor import TensorShape

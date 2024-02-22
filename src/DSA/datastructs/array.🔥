@@ -1,4 +1,6 @@
-# defines `Array` struct
+'''
+Contains `Array` struct.
+'''
 
 struct Array[type: DType](Sized, Copyable, Movable):
   '''
@@ -40,7 +42,7 @@ struct Array[type: DType](Sized, Copyable, Movable):
   fn __len__(self) -> Int:
     return self.length
 
-  fn __getitem__(inout self, owned index: Int) raises -> SIMD[type, 1]:
+  fn __getitem__(self, owned index: Int) raises -> SIMD[type, 1]:
     if index < (-self.length): raise Error("Index out of bounds")
     if index < 0: index = self.length + index
     if index > self.length-1: raise Error("Index out of bounds")
@@ -52,7 +54,7 @@ struct Array[type: DType](Sized, Copyable, Movable):
     if index > self.length-1: raise Error("Index out of bounds")
     return self.data.simd_store[1](index, val)
 
-  fn __iter__(inout self) -> Self:
+  fn __iter__(self) -> Self:
     return self
 
   fn __next__(inout self) raises -> SIMD[type, 1]:
