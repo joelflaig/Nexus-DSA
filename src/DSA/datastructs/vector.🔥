@@ -1,26 +1,26 @@
-'''Contains `Vector` and `VectorP`.'''
+'''Contains the `Vector` struct.'''
 from .tensorwrapper import TensorWrapper
 from tensor import TensorShape
-from random import seed, random_float64
+from random import seed, rand
 
-struct Vector(TensorWrapper, Sized):
+struct Vector[type: DType](TensorWrapper, Sized):
   '''Defines a wrapper to handle mathematical vectors.'''
   
-  var data: Tensor[float]
+  var data: Tensor[type]
   var size: Int
   var _offset: Int
 
   fn __init__(inout self) raises:
     self.size = 0
     self._offset = 0
-    self.data = Tensor[float]()
+    self.data = Tensor[type]()
 
   fn __init__(inout self, owned size: Int) raises:
     self.size = size
     self._offset = 0
-    self.data = Tensor[float](size)
+    self.data = Tensor[type](size)
 
-  fn __init__(inout self, data: Tensor[float]) raises:
+  fn __init__(inout self, data: Tensor[type]) raises:
     if data.rank() != 1:
       raise Error("Unable to convert given data to a vector due to rank mismatch")
     self.data = data
@@ -42,16 +42,16 @@ struct Vector(TensorWrapper, Sized):
     self._offset = other._offset
     self.size = other.size
 
-  fn __getitem__(self, index: Int) -> Float64:
+  fn __getitem__(self, index: Int) -> SIMD[type, 1]:
     return self.data[index]
 
   fn __len__(self) -> Int:
     return self.size
 
-  fn __iter__(self) raises -> Vector:
+  fn __iter__(self) raises -> Self:
     return self.data
 
-  fn __next__(inout self) raises -> Float64:
+  fn __next__(inout self) raises -> SIMD[type,1]:
     if self._offset >= self.size:
       raise Error("Index out of range of vector")
     self._offset += 1
@@ -62,76 +62,76 @@ struct Vector(TensorWrapper, Sized):
     self.data.__ipow__(exponent)
 
   @always_inline
-  fn __pow__(self, exponent: Int) raises -> Vector:
-    return Vector(self.data ** exponent)
+  fn __pow__(self, exponent: Int) raises -> Self:
+    return Self(self.data ** exponent)
 
   @always_inline
-  fn __truediv__(self, scalar: Float64) raises -> Vector:
-    return Vector(self.data / scalar)
+  fn __truediv__(self, scalar: SIMD[type,1]) raises -> Self:
+    return Self(self.data / scalar)
 
   @always_inline
-  fn __rtruediv__(self, scalar: Float64) raises -> Vector:
-    return Vector(self.data / scalar)
+  fn __rtruediv__(self, scalar: SIMD[type,1]) raises -> Self:
+    return Self(self.data / scalar)
 
   @always_inline
-  fn __truediv__(self, vec: Vector) raises -> Vector:
+  fn __truediv__(self, vec: Self) raises -> Self:
     if not self.dim_match(vec):
       raise Error("Unable to divide by vector due to dimension mismatch")
 
-    return Vector(self.data / vec.data)
+    return Self(self.data / vec.data)
 
   @always_inline
-  fn __rtruediv__(self, vec: Vector) raises -> Vector:
+  fn __rtruediv__(self, vec: Self) raises -> Self:
     if not self.dim_match(vec):
       raise Error("Unable to divide by vector due to dimension mismatch")
     
-    return Vector(self.data / vec.data)
+    return Self(self.data / vec.data)
 
   @always_inline
-  fn __mul__(self, vec: Vector) raises -> Float64:
+  fn __mul__(self, vec: Self) raises -> SIMD[type,1]:
     if not self.dim_match(vec):
       raise Error("Unable to multiply vectors due to dimension mismatch")
 
     return (self.data * vec.data)[0]
 
   @always_inline
-  fn __rmul__(self, vec: Vector) raises -> Float64:
+  fn __rmul__(self, vec: Self) raises -> SIMD[type,1]:
     return self.__mul__(vec)
 
   @always_inline
-  fn __sub__(self, vec: Vector) raises -> Vector:
+  fn __sub__(self, vec: Self) raises -> Self:
     if not self.dim_match(vec):
       raise Error("Unable to subtract vector due to dimension mismatch")
     
-    return Vector(self.data - vec.data)
+    return Self(self.data - vec.data)
 
   @always_inline
-  fn __rsub__(self, vec: Vector):
+  fn __rsub__(self, vec: Self):
     pass
 
   @always_inline
-  fn __add__(self, vec: Vector) raises -> Vector:
+  fn __add__(self, vec: Self) raises -> Self:
     if not self.dim_match(vec):
       raise Error("Unable to add vectors due to dimension mismatch")
     
-    return Vector(self.data + vec.data)
+    return Self(self.data + vec.data)
 
   @always_inline
-  fn __eq__(self, vec: Vector) -> Bool:
+  fn __eq__(self, vec: Self) -> Bool:
     if self.data != vec.data: return False
     return True
 
   @always_inline
-  fn __ne__(self, vec: Vector) -> Bool:
+  fn __ne__(self, vec: Self) -> Bool:
     return not self.__eq__(vec)
 
   @always_inline
-  fn dim_match(self, vec: Vector) -> Bool:
+  fn dim_match(self, vec: Self) -> Bool:
     '''Checks wether the length of the vector matches the length of `self`.'''
     if vec.data.dim(0) != self.data.dim(0): return False
     return True
 
-  fn append(inout self, data: Float64) raises:
+  fn append(inout self, data: SIMD[type,1]) raises:
     self.data = self.data.reshape(
       TensorShape(
         self.data.shape().num_elements()+1
@@ -139,25 +139,23 @@ struct Vector(TensorWrapper, Sized):
       )
     self.data.simd_store(-1, data)
 
-  fn sum(self) -> Float64:
-    var val: Float64 = 0
+  fn sum(self) -> SIMD[type,1]:
+    var val: SIMD[type,1] = 0
     for i in range(self.data.dim(0)):
       val += self.data[i]
     return val
 
   fn random_vector(inout self, len: Int) raises:
-    '''Defines function for generating random vectors with `Float64` values.'''
-    self.data = Tensor[float](len)
+    '''Defines function for generating random vectors with `SIMD[type,1]` values.'''
     seed()
-    for i in range(len):
-      self.data.simd_store[1](i, random_float64())
+    self.data = rand[type](len)
 
   @staticmethod
-  fn vector_applicable(func: fn(Float64) -> Float64) -> fn(Vector) raises escaping -> Vector:
-    '''Takes a function and returns its equivalent for the `Vector` type.'''
+  fn vector_applicable(func: fn(SIMD[type,1]) -> SIMD[type,1]) -> fn(Self) raises escaping -> Self:
+    '''Takes a function and returns its equivalent for the `Self` type.'''
     @always_inline
-    fn vecfunc(vec: Vector) raises escaping -> Vector:
-      var val = Vector()
+    fn vecfunc(vec: Self) raises escaping -> Self:
+      var val = Self()
       for i in vec:
         val.append(func(i))
       return val
@@ -165,16 +163,23 @@ struct Vector(TensorWrapper, Sized):
     return vecfunc
 
   @staticmethod
-  fn vector_applicable(func: fn(a:Float64, x:Float64) -> Float64) -> fn(a:Float64, vec:Vector) raises escaping -> Vector:
-    '''Takes a function with a parameter and returns it equivalent for the `Vector` type.'''
+  fn vector_applicable(func: fn(a:SIMD[type,1], x:SIMD[type,1]) -> SIMD[type,1]) -> fn(a:SIMD[type,1], vec:Self) raises escaping -> Self:
+    '''Takes a function with a parameter and returns it equivalent for the `Self` type.'''
     @always_inline
-    fn vecfunc(a:Float64, vec: Vector) raises -> Vector:
-      var val = Vector()
+    fn vecfunc(a:SIMD[type,1], vec: Self) raises -> Self:
+      var val = Self()
       for i in vec:
         val.append(func(a, i))
       return val
     
     return vecfunc
 
-alias VectorP = Pointer[Vector]
-'''A `Pointer` to an `Vector` instance'''
+alias MLVec = Vector[f32]
+'''`Vector` containing `DType.float32` values, useful for ML applications.'''
+
+alias GPUVec = Vector[tf32]
+'''
+`Vector` containing values of Mojo's special `DType.tensor_float32` type. 
+
+Note that this requires a NVIDIA GPU.
+'''
