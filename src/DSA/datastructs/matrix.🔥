@@ -81,13 +81,13 @@ struct Matrix[type: DType](MDTensorWrapper):
 
   @staticmethod
   fn matrix_applicable[type: DType](
-    func: fn(SIMD[type, 1]) -> SIMD[type, 1]
+    func: fn(x: SIMD[type, 1], a: SIMD[type, 1]) -> SIMD[type, 1]
     ) -> 
-    fn(Matrix[type]) raises escaping -> Matrix[type]:
+    fn(x: Matrix[type], a: SIMD[type, 1]) raises escaping -> Matrix[type]:
       
     '''Takes a function with a parameter and returns it equivalent for the `Matrix` type.'''
     @always_inline
-    fn matfunc(matrix: Matrix[type]) raises escaping -> Matrix[type]:
+    fn matfunc(matrix: Matrix[type], a: SIMD[type, 1]) raises escaping -> Matrix[type]:
       var val = Matrix[type](matrix.x, matrix.y)
       for i in range(matrix.x):
         for j in range(matrix.y):
@@ -95,7 +95,7 @@ struct Matrix[type: DType](MDTensorWrapper):
           val.data.simd_store[1](
             VariadicList(i, j), 
             func(
-              matrix.data.simd_load[1](i, j)
+              matrix.data.simd_load[1](i, j), a
               )
             )
 

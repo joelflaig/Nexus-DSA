@@ -124,7 +124,7 @@ struct Vector[type: DType](TensorWrapper, Sized):
   @always_inline
   fn __ne__(self, vec: Self) -> Bool:
     return not self.__eq__(vec)
-
+  
   @always_inline
   fn dim_match(self, vec: Self) -> Bool:
     '''Checks wether the length of the vector matches the length of `self`.'''
@@ -151,25 +151,20 @@ struct Vector[type: DType](TensorWrapper, Sized):
     self.data = rand[type](len)
 
   @staticmethod
-  fn vector_applicable(func: fn(SIMD[type,1]) -> SIMD[type,1]) -> fn(Self) raises escaping -> Self:
-    '''Takes a function and returns its equivalent for the `Self` type.'''
-    @always_inline
-    fn vecfunc(vec: Self) raises escaping -> Self:
-      var val = Self()
-      for i in vec:
-        val.append(func(i))
-      return val
-    
-    return vecfunc
-
-  @staticmethod
-  fn vector_applicable(func: fn(a:SIMD[type,1], x:SIMD[type,1]) -> SIMD[type,1]) -> fn(a:SIMD[type,1], vec:Self) raises escaping -> Self:
+  fn vector_applicable[type: DType](
+    func: fn(x: SIMD[type,1], a: SIMD[type,1]) -> SIMD[type,1]
+    ) -> 
+    fn(x: Vector[type], a: SIMD[type, 1]) raises escaping -> Vector[type]:
     '''Takes a function with a parameter and returns it equivalent for the `Self` type.'''
     @always_inline
-    fn vecfunc(a:SIMD[type,1], vec: Self) raises -> Self:
-      var val = Self()
+    fn vecfunc(vec: Vector[type], a: SIMD[type,1]) raises -> Vector[type]:
+      var val = Vector[type]()
       for i in vec:
-        val.append(func(a, i))
+        val.append(
+          func(
+            i, a
+            )
+          )
       return val
     
     return vecfunc
