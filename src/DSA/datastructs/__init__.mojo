@@ -1,4 +1,4 @@
-"""Module providing Datastructures"""
+"""Module providing Datastructures and algorithms."""
 
 alias bool = DType.bool
 '''
@@ -91,4 +91,16 @@ This is an alias for your(and my) convienience.
 It represents a special float format supported by NVIDIA Tensor Cores.
 
 This type is only available on NVIDIA GPUs.
+'''
+
+alias MLT = Tensor[f32]
+'''
+`Tensor` containing `DType.float32` values useful for ML applications.
+'''
+
+alias GPUT = Tensor[tf32]
+'''
+`Tensor` containing values of Mojo's special `DType.tensor_float32` type.
+
+Note that this requires a NVIDIA GPU.
 '''

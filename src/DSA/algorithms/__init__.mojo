@@ -1,1 +1,0 @@
-'''Module providing algorithms for the datastructures in this library.'''

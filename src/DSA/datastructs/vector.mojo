@@ -154,11 +154,11 @@ struct Vector[type: DType](TensorWrapper, Sized):
   fn vector_applicable[type: DType](
     func: fn(x: SIMD[type,1], a: SIMD[type,1]) -> SIMD[type,1]
     ) -> 
-    fn(x: Vector[type], a: SIMD[type, 1]) raises escaping -> Vector[type]:
+    fn(x: Tensor[type], a: SIMD[type, 1]) raises escaping -> Tensor[type]:
     '''Takes a function with a parameter and returns it equivalent for the `Self` type.'''
     @always_inline
-    fn vecfunc(vec: Vector[type], a: SIMD[type,1]) raises -> Vector[type]:
-      var val = Vector[type]()
+    fn vecfunc(vec: Tensor[type], a: SIMD[type,1]) raises -> Tensor[type]:
+      var val = Tensor[type]()
       for i in vec:
         val.append(
           func(

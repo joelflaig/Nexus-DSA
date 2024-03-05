@@ -2,7 +2,7 @@
 Contains `Array` struct.
 '''
 
-struct Array[type: DType](Sized, Copyable, Movable):
+struct DTypeArray[type: DType](Sized, Copyable, Movable):
   '''
   A struct implementing an array datastructure capable of holding `DType` values.
   '''
@@ -61,3 +61,4 @@ struct Array[type: DType](Sized, Copyable, Movable):
     if self._current >= self.length: raise Error("End of array")
     self._current += 1
     return self.data.simd_load[1, Int](self._current)
+
