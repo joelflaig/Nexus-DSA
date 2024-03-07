@@ -24,6 +24,11 @@ struct DTypeArray[type: DType](Sized, Copyable, Movable):
     for i in range(self.length):
       self.data.simd_store(i, data[i])
 
+  fn __init__(inout self, data: DTypePointer[type], len: Int):
+    self.data = data
+    self.length = len
+    self._current = 0
+
   fn __del__(owned self):
     self.data.free()
     self.data.__del__()
@@ -61,4 +66,13 @@ struct DTypeArray[type: DType](Sized, Copyable, Movable):
     if self._current >= self.length: raise Error("End of array")
     self._current += 1
     return self.data.simd_load[1, Int](self._current)
+  
+  fn append(inout self, owned data: SIMD[type, 1]):
+    self.data.simd_store[1](self.length, data)
+    self.length += 1
 
+  fn sum(self) -> SIMD[type, 1]:
+    var val: SIMD[type, 1] = 0
+    for i in range(self.length):
+      val += self.data.simd_load[1, Int](i)
+    return val

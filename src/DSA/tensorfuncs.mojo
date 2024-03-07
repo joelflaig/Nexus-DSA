@@ -2,6 +2,7 @@
 Provides functions for working with `Tensor` values.
 '''
 from tensor import TensorShape
+from .array import DTypeArray
 
 struct Vector[type: DType]:
   '''
@@ -72,34 +73,45 @@ struct Matrix[type: DType]:
     
     return matfunc
 
-@always_inline
-fn dot[type: DType](a: Tensor[type], b: Tensor[type]) raises-> Tensor[type]:
-  '''Defines function for matrix-vector multiplication.'''
-  if a.dim(0) != b.dim(1):
-    raise Error("Cannot multiply due to dimension mismatch")
+struct AnyTensorOps[type: DType]:
+  '''
+  Provides functions for working with n-dimensional `Tensor` values.
+  '''
 
-  var val = Tensor[type](a.dim(0))
+  @always_inline
+  fn hadamard[type: DType](a: Tensor[type], b:Tensor[type]) raises -> Tensor[DType]:
+    if not a.shape() == b.shape:
+      raise Error("Cannot execute hadamard multiplication due to unequal shapes.")
+    var arr_a = DTypeArray(a.data(), a.num_elements())
 
-  for i in range(a.dim(0)):
-    # multiplies input vector with rows of matrix
-    val[i] = (b * 
-      # returns the i-th row of the matrix as Tensor value
-      a.clip(
-        a.dim(1)*i, 
-        a.dim(1)*(i+1)-1
-      ))[0]
-  
-  return val
+  @always_inline
+  fn dot[type: DType](a: Tensor[type], b: Tensor[type]) raises -> Tensor[type]:
+    '''Defines function for matrix-vector multiplication.'''
+    if a.dim(0) != b.dim(1):
+      raise Error("Cannot multiply due to dimension mismatch")
 
-@always_inline
-fn flatten[type: DType](inout tens: Tensor[type]) raises -> Tensor[type]:
-  '''Returns all values of the underlying `Tensor` value in a 1-dimensional form.'''
-  var shape: Int = 0
-  for i in range(tens.rank()):
-    shape *= tens.dim(i)
+    var val = Tensor[type](a.dim(0))
 
-  return tens.reshape(
-      TensorShape(
-        shape
+    for i in range(a.dim(0)):
+      # multiplies input vector with rows of matrix
+      val[i] = (b * 
+        # returns the i-th row of the matrix as Tensor value
+        a.clip(
+          a.dim(1)*i, 
+          a.dim(1)*(i+1)-1
+        ))[0]
+    
+    return val
+
+  @always_inline
+  fn flatten[type: DType](inout tens: Tensor[type]) raises -> Tensor[type]:
+    '''Returns all values of the underlying `Tensor` value in a 1-dimensional form.'''
+    var shape: Int = 0
+    for i in range(tens.rank()):
+      shape *= tens.dim(i)
+
+    return tens.reshape(
+        TensorShape(
+          shape
+          )
         )
-      )
