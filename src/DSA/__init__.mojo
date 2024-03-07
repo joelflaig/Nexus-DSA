@@ -1,5 +1,8 @@
 """Module providing Datastructures and algorithms."""
 
+from .tensorfuncs import *
+from .array import *
+
 alias bool = DType.bool
 '''
 This is an alias for your(and my) convienience.
