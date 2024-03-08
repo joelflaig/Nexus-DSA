@@ -49,7 +49,7 @@ struct TensorOps[type: DType]:
   @always_inline
   fn flatten(inout tens: Tensor[type]) raises -> Tensor[type]:
     '''Returns all values of the underlying `Tensor` value in a 1-dimensional form.'''
-    var shape: Int = 0
+    var shape: Int = 1
     for i in range(tens.rank()):
       shape *= tens.dim(i)
 
