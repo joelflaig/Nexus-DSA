@@ -1,7 +1,7 @@
 <div align="center">
-    <img src="NexusDSA.gif" alt="Logo" width="250" height="250">
+    <img src="Nexus-DSA.gif" alt="Logo" width="250" height="250">
 
-  <h3 align="center">NexusDSA</h3>
+  <h3 align="center">Nexus-DSA</h3>
 </div>   
 
 ## Overview
