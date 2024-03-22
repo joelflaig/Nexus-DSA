@@ -66,9 +66,16 @@ struct DTypeArray[type: DType](Sized, Copyable, Movable):
     if self._current >= self.length: raise Error("End of array")
     self._current += 1
     return self.data.simd_load[1, Int](self._current)
-  
-  fn append(inout self, owned data: SIMD[type, 1]):
-    self.data.simd_store[1](self.length, data)
+
+  fn append(inout self, owned data: SIMD[type, 1]) raises:
+    var newptr = DTypePointer[type]().alloc(self.length + 1)
+
+    for i in range(self.length):
+      newptr.simd_store(i, self[i])
+
+    newptr.simd_store(self.length, data)
+    self.data = newptr
+
     self.length += 1
 
   fn sum(self) -> SIMD[type, 1]:
@@ -87,9 +94,10 @@ struct Array[type: AnyRegType]:
     self.data = Pointer[type]().alloc(len(data))
     self.length = len(data)
     self._current = 0
+
     for i in range(len(data)):
       self.data.store[Int](i, data[i])
-  
+
   fn __init__(inout self, length: Int):
     self.length = length
     self.data = Pointer[type]().alloc(length)
@@ -118,7 +126,7 @@ struct Array[type: AnyRegType]:
   fn __len__(self) -> Int:
     return self.length
 
-  fn __getitem__(self, owned index: Int) raises -> type: 
+  fn __getitem__(self, owned index: Int) raises -> type:
     if index < (-self.length): raise Error("Index out of bounds")
     if index < 0: index = self.length + index
     if index > self.length-1: raise Error("Index out of bounds")
@@ -137,7 +145,15 @@ struct Array[type: AnyRegType]:
     if self._current >= self.length: raise Error("End of array")
     self._current += 1
     return self.data.load[Int](self._current)
-  
-  fn append(inout self, owned data: type):
-    self.data.store[Int](self.length, data)
+
+  fn append(inout self, owned data: type) raises:
+    var newptr = Pointer[type]().alloc(self.length + 1)
+
+    for i in range(self.length):
+      newptr.store[Int](i, self[i])
+
+    newptr.store[Int](self.length, data)
+    self.data = newptr
+
     self.length += 1
+
