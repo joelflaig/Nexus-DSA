@@ -22,7 +22,7 @@ struct DTypeArray[type: DType](Sized, Copyable, Movable):
     self._current = 0
 
     for i in range(self.length):
-      self.data.simd_store(i, data[i])
+      self.data[i] = data[i]
 
   fn __init__(inout self, data: DTypePointer[type], len: Int):
     self.data = data
@@ -51,13 +51,13 @@ struct DTypeArray[type: DType](Sized, Copyable, Movable):
     if index < (-self.length): raise Error("Index out of bounds")
     if index < 0: index = self.length + index
     if index > self.length-1: raise Error("Index out of bounds")
-    return self.data.simd_load[1, Int](index)
+    return self.data[index]
 
   fn __setitem__(inout self, owned index: Int, val: SIMD[type, 1]) raises:
     if index < (-self.length): raise Error("Index out of bounds")
     if index < 0: index = self.length + index
     if index > self.length-1: raise Error("Index out of bounds")
-    return self.data.simd_store[1](index, val)
+    self.data[index] = val
 
   fn __iter__(self) -> Self:
     return self
@@ -65,15 +65,15 @@ struct DTypeArray[type: DType](Sized, Copyable, Movable):
   fn __next__(inout self) raises -> SIMD[type, 1]:
     if self._current >= self.length: raise Error("End of array")
     self._current += 1
-    return self.data.simd_load[1, Int](self._current)
+    return self.data[self._current]
 
   fn append(inout self, owned data: SIMD[type, 1]) raises:
     var newptr = DTypePointer[type]().alloc(self.length + 1)
 
     for i in range(self.length):
-      newptr.simd_store(i, self[i])
+      newptr[i] = self[i]
 
-    newptr.simd_store(self.length, data)
+    newptr[self.length] = data
     self.data = newptr
 
     self.length += 1
@@ -81,7 +81,7 @@ struct DTypeArray[type: DType](Sized, Copyable, Movable):
   fn sum(self) -> SIMD[type, 1]:
     var val: SIMD[type, 1] = 0
     for i in range(self.length):
-      val += self.data.simd_load[1, Int](i)
+      val += self.data[i]
     return val
 
 struct Array[type: AnyRegType]:
