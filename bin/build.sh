@@ -3,5 +3,6 @@
 mojo package ./src/DSA -o ./bin/DSA.mojopkg
 cp ./bin/DSA.mojopkg ./src/tests/DSA.mojopkg
 # cp ./bin/DSA.mojopkg ../NexusNet/src/Neural/DSA.mojopkg
+rm -rf ../NexusNet/src/Neural/DSA
 cp -r ./src/DSA ../NexusNet/src/Neural/DSA
 cp ./bin/DSA.mojopkg ../Nexus/bin/DSA.mojopkg

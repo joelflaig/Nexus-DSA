@@ -1,6 +1,7 @@
 '''
 Contains `Array` struct.
 '''
+from memory.unsafe import Pointer, DTypePointer
 
 struct DTypeArray[type: DType](Sized, Copyable, Movable):
   '''
@@ -67,6 +68,15 @@ struct DTypeArray[type: DType](Sized, Copyable, Movable):
     self._current += 1
     return self.data[self._current]
 
+  fn __str__(self) raises -> String:
+    var val: String = "DTypeArray["
+    for i in range(len(self)):
+      val += str(self[i])
+      val += ", "
+    val += "]"
+
+    return val
+
   fn append(inout self, owned data: SIMD[type, 1]) raises:
     var newptr = DTypePointer[type]().alloc(self.length + 1)
 
@@ -84,7 +94,7 @@ struct DTypeArray[type: DType](Sized, Copyable, Movable):
       val += self.data[i]
     return val
 
-struct Array[type: AnyRegType]:
+struct Array[type: Copyable]:
 
   var data: Pointer[type]
   var length: Int
@@ -130,29 +140,24 @@ struct Array[type: AnyRegType]:
     if index < (-self.length): raise Error("Index out of bounds")
     if index < 0: index = self.length + index
     if index > self.length-1: raise Error("Index out of bounds")
-    return self.data.load[Int](index)
+    return self.data[index]
 
   fn __setitem__(inout self, owned index: Int, val: type) raises:
     if index < (-self.length): raise Error("Index out of bounds")
     if index < 0: index = self.length + index
     if index > self.length-1: raise Error("Index out of bounds")
-    return self.data.store[Int](index, val)
+    self.data[index] = val
 
   fn __iter__(self) -> Self:
     return self
-
-  fn __next__(inout self) raises -> type:
-    if self._current >= self.length: raise Error("End of array")
-    self._current += 1
-    return self.data.load[Int](self._current)
 
   fn append(inout self, owned data: type) raises:
     var newptr = Pointer[type]().alloc(self.length + 1)
 
     for i in range(self.length):
-      newptr.store[Int](i, self[i])
+      newptr[i] = self[i]
 
-    newptr.store[Int](self.length, data)
+    newptr[self.length] = data
     self.data = newptr
 
     self.length += 1
