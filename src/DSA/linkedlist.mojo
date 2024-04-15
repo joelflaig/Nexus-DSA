@@ -32,6 +32,27 @@ struct DLLNode[T: Copyable](Node):
   var next: Pointer[Self]
   var prev: Pointer[Self]
 
+  fn __init__(inout self):
+    self.data = self.data
+    self.next = Pointer[Self]()
+    self.prev = Pointer[Self]()
+
+  fn __init__(inout self, data: T):
+    self.data = data
+    self.next = Pointer[Self]()
+    self.prev = Pointer[Self]()
+
+  fn __copyinit__(inout self, other: Self):
+    self.data = other.data
+    self.next = other.next
+    self.prev = other.prev
+
+  fn point(inout self, node: Pointer[Self]):
+    self.next = node
+
+  fn set_prev(inout self, node: Pointer[Self]):
+    self.prev = node
+
 struct LinkedList[T: Copyable](LLTrait, Sized):
 
   var head: LLNode[T]
@@ -74,5 +95,18 @@ struct LinkedList[T: Copyable](LLTrait, Sized):
     self._current = self.end
 
 struct DoublyLinkedList[T: Copyable](LLTrait, Sized):
-  pass
+
+  var head: DLLNode[T]
+  var end: DLLNode[T]
+  var length: Int
+  var _current: LLNode[T]
+
+  fn __init__(inout self):
+    self.head = DLLNode[T]()
+    self.end = DLLNode[T]()
+    self.length = 0
+    self._current = DLLNode[T]()
+
+  fn __len__(self) -> Int:
+    return self.length
 
