@@ -77,7 +77,7 @@ struct DTypeArray[type: DType](Sized, Copyable, Movable):
 
     return val
 
-  fn append(inout self, owned data: SIMD[type, 1]) raises:
+  fn append(inout self, data: SIMD[type, 1]) raises:
     var newptr = DTypePointer[type]().alloc(self.length + 1)
 
     for i in range(self.length):
@@ -151,7 +151,7 @@ struct Array[type: Copyable]:
   fn __iter__(self) -> Self:
     return self
 
-  fn append(inout self, owned data: type) raises:
+  fn append(inout self, data: type) raises:
     var newptr = Pointer[type]().alloc(self.length + 1)
 
     for i in range(self.length):
